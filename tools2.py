@@ -65,6 +65,45 @@ def easy_grad_method(f, x, h, e): #revstep in 3d
         fx = fnew
     return x
 
+def find_worst(fs):
+    n=len(fs)
+    i_worst=0
+    for i in range(1,n):
+        if fs[i]>fs[i_worst]:
+            i_worst=i
+    return i_worst
+
+def find_best(fs):
+    n=len(fs)
+    i_best=0
+    for i in range(1,n):
+        if fs[i]<fs[i_best]:
+            i_best=i
+    return i_best
+
+def simplex(f,x,h,e):
+    x=np.array(x).reshape((1,2))
+    xs=np.vstack((x, x+[h,0], x+[0,h]))
+    fs=np.array([f(xs[0]),f(xs[1]),f(xs[2])])
+    while True:
+        i_w=find_worst(fs)
+        x_w=xs[i_w]
+        x_ref=sum(xs)-2*x_w
+        f_ref=f(x_ref)
+        if fs[i_w]>f_ref:
+            xs[i_w]=x_ref
+            fs[i_w]=f_ref
+        else:
+            i_b=find_best(fs)
+            x_b=xs[i_b]
+            h=h/3
+            if h>e:
+                x=x_b
+                xs=np.vstack((x, x+[h,0], x+[0,h]))
+                fs=np.array([f(xs[0]),f(xs[1]),f(xs[2])])
+            else:
+                return x_b
+
 def approximate_poly(X, Y, p=2):
     n = len(X)
     X = X.reshape((n, 1)) # reshape array to horizontal
@@ -78,6 +117,19 @@ def approximate_poly(X, Y, p=2):
     B = np.dot(FiT, Y)
     A = np.linalg.solve(N, B)
     return A
+
+def approximate_custom(x, y):
+    n = len(x)
+    x = x.reshape((n, 1)) # reshape array to horizontal
+    y = y.reshape((n, 1)) # reshape array to horizontal
+    fi = np.ones((n, 1)) # array of once
+
+    fi = np.hstack([fi, x, x**3, x**5, np.arctan(x)]) # glue arrays together horizontally
+    fit = fi.T # transpond matrix
+    n = np.dot(fit, fi)
+    b = np.dot(fit, y)
+    a = np.linalg.solve(n, b)
+    return a
 
 def newton_rafson(f,J,x,e):
     fx = f(x)

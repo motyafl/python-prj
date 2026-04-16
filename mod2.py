@@ -8,23 +8,33 @@ import functools #memorizing
 
 plot.close('all') # remove old graphs
 
+# Interpolation
 X = [1, 2, 3]
 Y = [2.5, 1, 2]
 
 f = lambda x: tools2.lagrange(x, X, Y)
 
-x = np.arange(1, 3.1, 0.1) #making a line on a plot instead of one dot
+x = np.arange(1, 4.1, 0.1) #making a line on a plot instead of one dot
 y = f(x) #tools2.lagrange(x, X, Y)
 
 xext = 4
 yext = f(xext)
-print("Lagranges Interpolation:\n", y)
 
-#plot.plot(X, Y, 'ro')
-#plot.plot(x, y, 'md')
-#plot.plot(xext, yext, 'rp')
+print(f"Lagranges Interpolation:\n x = {xext}, y = {yext}")
 
-@np.vectorize #puts function into decorator and make it ipossifle to call fdec, only vectorised  function, with the same name
+plot.plot(X, Y, 'g*') # dost
+plot.plot(x, y) # graph
+plot.plot(xext, yext, 'r*') # interpolation
+#plot.show()
+plot.title("Interpolation")
+plot.savefig("graphs/interpolation.jpg")
+
+plot.close('all') # remove old graphs
+
+
+
+# Complicated graphs 
+@np.vectorize #puts function into decorator and make it impossifle to call fdec, only vectorised  function, with the same name
 def f_vec(x): #fdec(x)
     if x > 0:
         return x*x
@@ -35,14 +45,20 @@ def f_vec(x): #fdec(x)
 xvec = np.arange(-1, 1, 0.001) 
 yvec = f_vec(xvec)
 
-#plot.plot(xvec, yvec, 'b.')
+plot.plot(xvec, yvec)
 
 plot.grid()
 plot.xlabel('X')
 plot.ylabel('Y')
 #plot.show()
-#plot.savefig("output.jpg")
+plot.title("Complicated graphs")
+plot.savefig("graphs/complicated_g.jpg")
 
+plot.close('all') # remove old graphs
+
+
+
+#Big numbers
 def factorial(n):
     if n > 0:
         return n*factorial(n-1)
@@ -50,7 +66,7 @@ def factorial(n):
         return 1
 
 F = factorial(5)
-print("Factorial: ", F)
+print("\nFactorial: ", F)
 
 @functools.cache #memoizing
 #@numbo.njit #predcompiling
@@ -63,8 +79,9 @@ def fibo(n):
 Fi = fibo(150)
 print("Fibonacchi: ", Fi)
 
-## APROXIMATION
 
+
+# Aproximation
 X = np.array([1, 2, 3, 4, 5, 6])
 Y = np.array([1, 1.3, 1.7, 2.1, 2.8, 3])
 
@@ -75,37 +92,49 @@ f1 = lambda x: A[0]+A[1]*x
 y = f1(x)
 R_1 = sum((Y - f1(X))**2)
 
+print("\nLine Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A, "\nR:", R_1)
 plot.plot(x, y)
-
-print("Line Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A)
 
 A_p = tools2.approximate_parabol(X, Y)
 f1_p = lambda x: A_p[0]+A_p[1]*x + A_p[2]*x*x
 y_p = f1_p(x)
 R_p = sum((Y - f1_p(X))**2)
 
+print("\nParabolic Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A_p, "\nR:", R_p)
 plot.plot(x, y_p)
-
-print("Parabolic Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A_p)
 
 A_p5 = tools2.approximate_poly(X, Y, 5)
 f1_p5 = lambda x: A_p5[0]+A_p5[1]*x + A_p5[2]*x*x + A_p5[3]*x**3 + A_p5[4]*x**4 + A_p5[5]*x**5 
 y_p5 = f1_p5(x)
 R_p5 = sum((Y - f1_p5(X))**2)
 
+print("\nPolynomial Approximation(5): ", "\nX:", X, "\nY:", Y, "\nA:", A_p5, "\nR:", R_p5)
 plot.plot(x, y_p5)
 
-print("Poly Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A_p5)
+A_c = tools2.approximate_custom(X, Y)
+f1_c = lambda x: A_c[0] + A_c[1]*x + A_c[2]*x*x*x + A_c[3]*x**5 + A_c[4]*np.arctan(x) 
+y_c = f1_c(x)
+R_c = sum((Y - f1_c(X))**2)
+
+print("\nCustom function Approximation: ", "\nX:", X, "\nY:", Y, "\nA:", A_c, "\nR:", R_c)
+plot.plot(x, y_c)
 
 plot.plot(X, Y, "*r")
 plot.legend([f'Line, R={R_1:.3f}',
              f'Parabol, R={R_p:.3f}',
-             f'Poly, R={R_p5:.3f}'])
-plot.savefig("output1.jpg")
+             f'Poly, R={R_p5:.3f}',
+             f'Custom, R={R_c:.3f}'])
+
+
+#plot.show()
+plot.title("Approximation")
+plot.savefig("graphs/approximation.jpg")
 
 plot.close('all') # remove old graphs
+
+
+
 # 3D graphs amd local MIN/MAX in 3D
-'''
 def f(x):
     return (x[0]**2 + x[1] - 11)**2 + (x[1]**2 + x[0] - 7)**2
 
@@ -123,7 +152,7 @@ Y = f(X)
 #ax.plot_surface(x1, x2, Y) # plot.gca() find and plot in prevous axes, or just plot ax as a pointer
 
 ax1 = plot.subplot(2, 2, 2, projection='3d') # same as plot.axis only plots in certain area
-ax1.set_title('abc')
+#ax1.set_title('abc')
 ax2 = plot.subplot(2, 2, 4, projection='3d') # same as plot.axis only plots in certain area
 ax3 = plot.subplot(1, 2, 1) # линии уровня
 
@@ -152,8 +181,20 @@ xzm = [0, 0]
 xmax = tools2.easy_grad_method(lambda x: -f(x), xzm, h, e)
 ax3.plot(xmax[0], xmax[1], 'b*')
 
-plot.savefig("output.jpg")
-'''
+print("\nLocal max and mins:",
+        f"\nXmax = {xmax[0]}, Ymax = {xmax[1]}",
+        f"\nXmin = {xmins[0][0]}, Ymin = {xmins[0][1]}",
+        f"\nXmin = {xmins[1][0]}, Ymin = {xmins[1][1]}",
+        f"\nXmin = {xmins[2][0]}, Ymin = {xmins[2][1]}",
+        f"\nXmin = {xmins[3][0]}, Ymin = {xmins[3][1]}")
+
+#plot.show()
+plot.title("3D graphs")
+plot.savefig("graphs/local_min_max_3d.jpg")
+
+plot.close('all') # remove old graphs
+
+
 
 
 # Nonlinear system of equations
@@ -194,6 +235,7 @@ x22_down = f2down(x12)
 e = 0.001
 xzero = np.array([0, 1])
 xres = tools2.newton_rafson(f, J, xzero, e)
+
 '''
 plot.plot(x1, x2_up, 'b')
 plot.plot(x1, x2_down, 'b')
@@ -213,6 +255,7 @@ ax2=plot.subplot(1,3,2)
 ax3u=plot.subplot(2,3,3)
 ax3d=plot.subplot(2,3,6, projection='3d')
 
+ax2.set_title("NSE")
 ax2.plot(x1, x2_up, 'b')
 ax2.plot(x1, x2_down, 'b')
 ax2.plot(x12, x22_up, 'r')
@@ -223,7 +266,6 @@ ax2.plot(xres[0], xres[1], 'md')
 ax1u.contour(x1g, x2g, Z1)
 ax3u.contour(x1g, x2g, Z2)
 
-
 ax1d.plot_surface(x1g, x2g, Z1)
 ax3d.plot_surface(x1g, x2g, Z2)
 
@@ -232,4 +274,7 @@ ax3d.plot_surface(x1g, x2g, Z2)
 #radius = 3*np.ones(len(angle))
 #plot.polar(angle, radius)
 
-plot.savefig("output.jpg")
+print(f"\nSolutions for the NSE: \n[x, y] = [{xres[0]:.6f}, {xres[1]:.6f}] \n[f1, f2] = [{f(xres)[0]:.6f}, {f(xres)[1]:.6f}]")
+
+#plot.show()
+plot.savefig("graphs/NSE.jpg")
